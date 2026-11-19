@@ -74,6 +74,41 @@ test('issue-1469',
 
 ###
 
+kern2_fonts = custom_target('kern2-fonts',
+  output: [
+    'kern2-add.ttf',
+    'kern2-override.ttf',
+    'kern2-mixed.ttf',
+    'kern0-only.ttf',
+    'kern2-truncated.ttf',
+    'kern2-oob-index.ttf',
+    'kern2-stream.ttf',
+  ],
+  command: [python_exe, files('kern2/make-fonts.py'), '@OUTPUT@'],
+)
+
+test_kern2 = executable('kern2',
+  files([ 'kern2/main.c' ]),
+  dependencies: freetype_dep,
+  # The failure-code checks drive the sfnt loader through internal headers.
+  include_directories: include_directories('../src'),
+)
+
+test('kern2',
+  test_kern2,
+  env: test_env,
+  depends: kern2_fonts,
+  args: [
+    kern2_fonts[0], kern2_fonts[1], kern2_fonts[2],
+    kern2_fonts[3], kern2_fonts[4], kern2_fonts[5],
+    kern2_fonts[6],
+  ],
+  suite: 'regression',
+  timeout: 30,
+)
+
+###
+
 if harfbuzz_opt == 'YES' or harfbuzz_opt == 'dynamic'
   issue_1441_c_args = []
   if harfbuzz_opt == 'dynamic'

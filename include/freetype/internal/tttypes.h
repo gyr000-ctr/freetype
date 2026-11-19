@@ -911,6 +911,50 @@ FT_BEGIN_HEADER
 
   /**************************************************************************
    *
+   * @struct:
+   *   TT_Kern2SubtableRec
+   *
+   * @description:
+   *   A descriptor for a horizontal class-based 'kern' subtable in
+   *   format 2.  The subtable data itself is not kept in memory; only
+   *   the absolute stream positions needed for on-demand lookups are
+   *   stored.
+   *
+   * @fields:
+   *   mask ::
+   *     The bit identifying this subtable, matching the bits used in
+   *     `kern_avail_bits`.
+   *
+   *   coverage ::
+   *     The subtable's coverage field; bit 3 selects override versus
+   *     additive accumulation.
+   *
+   *   data_limit ::
+   *     The first stream position past the subtable.
+   *
+   *   left_offset ::
+   *     The absolute stream position of the left class table.
+   *
+   *   right_offset ::
+   *     The absolute stream position of the right class table.
+   *
+   *   array_offset ::
+   *     The absolute stream position of the kerning values array.
+   */
+  typedef struct  TT_Kern2SubtableRec_
+  {
+    FT_UInt32  mask;
+    FT_UInt    coverage;
+    FT_ULong   data_limit;
+    FT_ULong   left_offset;
+    FT_ULong   right_offset;
+    FT_ULong   array_offset;
+
+  } TT_Kern2SubtableRec;
+
+
+  /**************************************************************************
+   *
    * This structure/class is defined here because it is common to the
    * following formats: TTF, OpenType-TT, and OpenType-CFF.
    *
@@ -1425,7 +1469,7 @@ FT_BEGIN_HEADER
    *
    *   num_kern_tables ::
    *     The number of supported kern subtables (up to 32; FreeType
-   *     recognizes only horizontal ones with format 0).
+   *     recognizes only horizontal ones with format 0 or format 2).
    *
    *   kern_avail_bits ::
    *     The availability status of kern subtables; if bit n is set, table n
@@ -1434,6 +1478,13 @@ FT_BEGIN_HEADER
    *   kern_order_bits ::
    *     The sortedness status of kern subtables; if bit n is set, table n is
    *     sorted.
+   *
+   *   kern2_subtables ::
+   *     Descriptors for the supported format 2 kern subtables, used for
+   *     on-demand stream reads without keeping the table data in memory.
+   *
+   *   num_kern2_subtables ::
+   *     The number of entries in `kern2_subtables`.
    *
    *   bdf ::
    *     Data related to an SFNT font's 'bdf' table; see `tttypes.h`.
@@ -1669,6 +1720,9 @@ FT_BEGIN_HEADER
     FT_UInt               num_kern_tables;
     FT_UInt32             kern_avail_bits;
     FT_UInt32             kern_order_bits;
+
+    TT_Kern2SubtableRec*  kern2_subtables;
+    FT_UInt               num_kern2_subtables;
 
 #ifdef TT_CONFIG_OPTION_BDF
     TT_BDFRec             bdf;
