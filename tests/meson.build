@@ -35,6 +35,36 @@ test('varc',
 
 ###
 
+gvar_bearings_fonts = custom_target('gvar-bearings-fonts',
+  output: [
+    'gvar-bearings.ttf',
+    'gvar-embedded.ttf',
+    'gvar-privatepoints.ttf',
+    'gvar-nogvar.ttf',
+    'gvar-hvar.ttf',
+    'gvar-bad-version.ttf',
+    'gvar-bad-axis.ttf',
+    'gvar-bad-count.ttf',
+    'gvar-bad-tuplesize.ttf',
+  ],
+  command: [python_exe, files('gvar-bearings/make-fonts.py'),
+            '@OUTDIR@'],
+)
+
+test_gvar_bearings = executable('gvar-bearings',
+  files([ 'gvar-bearings/main.c' ]),
+  dependencies: freetype_dep,
+)
+
+test('gvar-bearings',
+  test_gvar_bearings,
+  env: test_env,
+  depends: gvar_bearings_fonts,
+  args: [meson.current_build_dir()],
+  suite: 'regression')
+
+###
+
 test_outline_reverse = executable('outline-reverse',
   files([ 'outline-reverse/main.c' ]),
   dependencies: freetype_dep,
